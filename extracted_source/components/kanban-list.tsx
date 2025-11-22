@@ -4,9 +4,15 @@ import type React from "react"
 
 import { KanbanCard } from "./kanban-card"
 import { Button } from "./ui/button"
-import { MoreHorizontal, Plus } from "lucide-react"
+import { MoreHorizontal, Plus, Trash2 } from "lucide-react"
 import type { Column, Task } from "./kanban-board"
 import { cn } from "@/lib/utils"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu"
 
 type KanbanListProps = {
   column: Column
@@ -16,6 +22,9 @@ type KanbanListProps = {
   onDragEnd: () => void
   isDraggingOver: boolean
   isDragging: boolean
+  onAddCard: () => void
+  onDeleteCard: (taskId: string) => void
+  onDeleteList: () => void
 }
 
 export function KanbanList({
@@ -26,6 +35,9 @@ export function KanbanList({
   onDragEnd,
   isDraggingOver,
   isDragging,
+  onAddCard,
+  onDeleteCard,
+  onDeleteList,
 }: KanbanListProps) {
   return (
     <div
@@ -45,9 +57,23 @@ export function KanbanList({
             {column.tasks.length}
           </span>
         </div>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={onAddCard}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add card
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onDeleteList} className="text-destructive">
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete list
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Cards */}
@@ -58,6 +84,7 @@ export function KanbanList({
             task={task}
             onDragStart={() => onDragStart(task, column.id)}
             onDragEnd={onDragEnd}
+            onDelete={() => onDeleteCard(task.id)}
           />
         ))}
       </div>
@@ -67,6 +94,7 @@ export function KanbanList({
         variant="ghost"
         size="sm"
         className="mt-2 w-full justify-start text-muted-foreground hover:text-foreground"
+        onClick={onAddCard}
       >
         <Plus className="mr-2 h-4 w-4" />
         {"Add a card"}

@@ -2,7 +2,8 @@
 
 import { Badge } from "./ui/badge"
 import { Avatar, AvatarFallback } from "./ui/avatar"
-import { Clock, MessageSquare, Paperclip } from "lucide-react"
+import { Button } from "./ui/button"
+import { Clock, Trash2 } from "lucide-react"
 import type { Task } from "./kanban-board"
 import { cn } from "@/lib/utils"
 
@@ -10,6 +11,7 @@ type KanbanCardProps = {
   task: Task
   onDragStart: () => void
   onDragEnd: () => void
+  onDelete: () => void
 }
 
 const priorityColors = {
@@ -18,14 +20,27 @@ const priorityColors = {
   high: "bg-red-500/10 text-red-700 hover:bg-red-500/20",
 }
 
-export function KanbanCard({ task, onDragStart, onDragEnd }: KanbanCardProps) {
+export function KanbanCard({ task, onDragStart, onDragEnd, onDelete }: KanbanCardProps) {
   return (
     <div
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      className="group cursor-grab rounded-lg border bg-card p-3 shadow-sm transition-all hover:shadow-md active:cursor-grabbing active:opacity-50"
+      className="group relative cursor-grab rounded-lg border bg-card p-3 shadow-sm transition-all hover:shadow-md active:cursor-grabbing active:opacity-50"
     >
+      {/* Delete button - shown on hover */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute right-1 top-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
+        onClick={(e) => {
+          e.stopPropagation()
+          onDelete()
+        }}
+      >
+        <Trash2 className="h-3.5 w-3.5" />
+      </Button>
+
       {/* Tags */}
       {task.tags && task.tags.length > 0 && (
         <div className="mb-2 flex flex-wrap gap-1">
@@ -38,7 +53,7 @@ export function KanbanCard({ task, onDragStart, onDragEnd }: KanbanCardProps) {
       )}
 
       {/* Title */}
-      <h4 className="mb-2 font-medium leading-snug text-card-foreground">{task.title}</h4>
+      <h4 className="mb-2 font-medium leading-snug text-card-foreground pr-6">{task.title}</h4>
 
       {/* Description */}
       {task.description && <p className="mb-3 text-sm text-muted-foreground">{task.description}</p>}
@@ -51,17 +66,6 @@ export function KanbanCard({ task, onDragStart, onDragEnd }: KanbanCardProps) {
               {task.priority}
             </Badge>
           )}
-
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <button className="flex items-center gap-1 hover:text-foreground">
-              <MessageSquare className="h-3.5 w-3.5" />
-              <span>2</span>
-            </button>
-            <button className="flex items-center gap-1 hover:text-foreground">
-              <Paperclip className="h-3.5 w-3.5" />
-              <span>3</span>
-            </button>
-          </div>
         </div>
 
         {task.assignee && (
